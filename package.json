@@ -1,7 +1,7 @@
 {
   "name": "amp-ai-sdk-provider",
   "version": "0.1.0",
-  "description": "Amp provider for Vercel AI SDK",
+  "description": "Coding agent provider for Vercel AI SDK that exposes Amp's development tools, project context, and agent capabilities",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -28,11 +28,15 @@
   "keywords": [
     "ai",
     "amp",
-    "llm",
+    "coding-agent",
+    "developer-tools",
     "vercel",
     "ai-sdk",
     "provider",
-    "sourcegraph"
+    "sourcegraph",
+    "code-generation",
+    "project-context",
+    "toolbox"
   ],
   "author": "Graham McBain <graham@ampcode.com>",
   "license": "MIT",

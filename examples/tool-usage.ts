@@ -1,5 +1,5 @@
 import { generateText } from '@ai-sdk/core';
-import { ampCode } from '../src';
+import { ampCode } from '../src/index';
 
 // Example showing how to use Amp's agent with custom tools
 async function toolUsageExample() {

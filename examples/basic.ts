@@ -1,5 +1,5 @@
 import { generateText, streamText } from 'ai';
-import { amp, ampChat, ampCode } from 'amp-ai-sdk-provider';
+import { amp, ampChat, ampCode } from '../src/index';
 
 async function basicExample() {
   console.log('=== Basic Text Generation ===');

@@ -1,5 +1,5 @@
 import { generateText, streamText } from '@ai-sdk/core';
-import { ampCode, ampReasoning, createAmp } from '../src';
+import { ampCode, ampReasoning, createAmp } from '../src/index';
 
 // Basic coding assistance
 async function basicCodingExample() {
