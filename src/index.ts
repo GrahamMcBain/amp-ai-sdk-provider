@@ -3,11 +3,11 @@ import {
   loadApiKey,
   withoutTrailingSlash,
 } from '@ai-sdk/provider-utils';
-import { ProviderV3 } from '@ai-sdk/provider';
-import { AmpChatLanguageModel, AmpChatSettings } from './amp-chat-language-model';
-import { AmpAgentLanguageModel, AmpAgentSettings } from './amp-agent-language-model';
+import { ProviderV1 } from '@ai-sdk/provider';
+import { AmpChatLanguageModel, AmpChatSettings } from './amp-chat-language-model-simple';
+import { AmpAgentLanguageModel, AmpAgentSettings } from './amp-agent-language-model-simple';
 
-export interface AmpProvider extends ProviderV3 {
+export interface AmpProvider extends ProviderV1 {
   (modelId: string, settings?: AmpChatSettings | AmpAgentSettings): AmpChatLanguageModel | AmpAgentLanguageModel;
   languageModel(
     modelId: string,
@@ -76,7 +76,7 @@ export function createAmp(options: AmpProviderSettings = {}): AmpProvider {
     // 3. Global agent settings are provided in options
     const isAgentModel = modelId === 'amp-code' || modelId === 'amp-reasoning';
     const hasAgentSettings = 'cwd' in settings || 'toolbox' in settings || 'dangerouslyAllowAll' in settings;
-    const hasGlobalAgentSettings = options.cwd || options.toolbox || options.dangerouslyAllowAll;
+    const hasGlobalAgentSettings = !!(options.cwd || options.toolbox || options.dangerouslyAllowAll);
     
     return isAgentModel || hasAgentSettings || hasGlobalAgentSettings;
   };
@@ -91,7 +91,7 @@ export function createAmp(options: AmpProviderSettings = {}): AmpProvider {
         ...settings,
         cwd: (settings as AmpAgentSettings).cwd || options.cwd,
         toolbox: (settings as AmpAgentSettings).toolbox || options.toolbox,
-        dangerouslyAllowAll: (settings as AmpAgentSettings).dangerouslyAllowAll || options.dangerouslyAllowAll,
+        dangerouslyAllowAll: (settings as AmpAgentSettings).dangerouslyAllowAll ?? options.dangerouslyAllowAll ?? false,
         systemPrompt: (settings as AmpAgentSettings).systemPrompt || options.systemPrompt,
       };
 
@@ -150,5 +150,5 @@ export const ampCode = (settings?: AmpAgentSettings) =>
 export const ampReasoning = (settings?: AmpAgentSettings) => 
   amp.languageModel('amp-reasoning', settings);
 
-export type { AmpChatSettings } from './amp-chat-language-model';
-export type { AmpAgentSettings } from './amp-agent-language-model';
+export type { AmpChatSettings } from './amp-chat-language-model-simple';
+export type { AmpAgentSettings } from './amp-agent-language-model-simple';
