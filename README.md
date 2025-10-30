@@ -171,7 +171,7 @@ try {
 
 ## Contributing
 
-This provider is part of the [Amp](https://github.com/sourcegraph/amp) project. See the main repository for contribution guidelines.
+This provider is part of the [Amp](https://ampcpde.com) project. See the main repository for contribution guidelines.
 
 ## License
 
