@@ -57,12 +57,15 @@ export class AmpChatLanguageModel implements LanguageModelV1 {
       text: `Mock response for: ${prompt}`,
       finishReason: 'stop' as LanguageModelV1FinishReason,
       usage: {
-        promptTokens: 10,
+        promptTokens: Math.ceil(prompt.length / 4), // Rough estimate: 4 chars per token
         completionTokens: 20,
       },
       rawCall: {
         rawPrompt: options.prompt,
-        rawSettings: {},
+        rawSettings: {
+          baseURL: this.config.baseURL,
+          model: this.settings.model || this.modelId,
+        },
       },
       warnings,
     };
@@ -82,7 +85,7 @@ export class AmpChatLanguageModel implements LanguageModelV1 {
           type: 'finish',
           finishReason: 'stop',
           usage: {
-            promptTokens: 10,
+            promptTokens: Math.ceil(options.prompt.length / 4),
             completionTokens: 15,
           },
         });

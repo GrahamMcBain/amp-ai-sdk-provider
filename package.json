@@ -21,9 +21,13 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "lint": "eslint src/**/*.ts",
-    "test": "vitest",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:compliance": "vitest run tests/compliance",
     "type-check": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+    "ci": "npm run lint && npm run type-check && npm run build && npm run test",
+    "prepublishOnly": "npm run ci"
   },
   "keywords": [
     "ai",
@@ -49,6 +53,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0",

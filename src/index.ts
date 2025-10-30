@@ -97,6 +97,7 @@ export function createAmp(options: AmpProviderSettings = {}): AmpProvider {
 
       return new AmpAgentLanguageModel(modelId, agentSettings, {
         provider: 'amp',
+        baseURL: withoutTrailingSlash(options.baseURL) ?? 'https://api.ampcode.com',
         apiKey: loadApiKey({
           apiKey: options.apiKey,
           environmentVariableName: 'AMP_API_KEY',

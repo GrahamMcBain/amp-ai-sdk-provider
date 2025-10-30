@@ -19,6 +19,7 @@ export interface AmpAgentSettings {
 
 export interface AmpAgentConfig {
   provider: string;
+  baseURL?: string;
   apiKey?: string;
   generateId: () => string;
 }
@@ -67,8 +68,8 @@ export class AmpAgentLanguageModel implements LanguageModelV1 {
       text: response,
       finishReason: 'stop' as LanguageModelV1FinishReason,
       usage: {
-        promptTokens: prompt.length,
-        completionTokens: response.length,
+        promptTokens: Math.ceil(prompt.length / 4), // Rough estimate: 4 chars per token
+        completionTokens: Math.ceil(response.length / 4),
       },
       rawCall: {
         rawPrompt: options.prompt,
@@ -76,6 +77,7 @@ export class AmpAgentLanguageModel implements LanguageModelV1 {
           cwd: this.settings.cwd,
           toolbox: this.settings.toolbox,
           dangerouslyAllowAll: this.settings.dangerouslyAllowAll,
+          baseURL: this.config.baseURL,
         },
       },
       warnings,
@@ -99,12 +101,12 @@ export class AmpAgentLanguageModel implements LanguageModelV1 {
           });
           
           controller.enqueue({
-            type: 'finish',
-            finishReason: 'stop',
-            usage: {
-              promptTokens: 20,
-              completionTokens: 30,
-            },
+          type: 'finish',
+          finishReason: 'stop',
+          usage: {
+          promptTokens: Math.ceil(options.prompt.length / 4),
+          completionTokens: 30,
+          },
           });
           
           controller.close();
