@@ -1,0 +1,58 @@
+{
+  "name": "amp-ai-sdk-provider",
+  "version": "0.1.0",
+  "description": "Amp provider for Vercel AI SDK",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint src/**/*.ts",
+    "test": "vitest",
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ai",
+    "amp",
+    "llm",
+    "vercel",
+    "ai-sdk",
+    "provider",
+    "sourcegraph"
+  ],
+  "author": "Graham McBain <graham@ampcode.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "@ai-sdk/provider": "^1.0.0",
+    "@ai-sdk/provider-utils": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "eslint": "^8.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GrahamMcBain/amp-ai-sdk-provider.git"
+  },
+  "homepage": "https://github.com/GrahamMcBain/amp-ai-sdk-provider",
+  "bugs": {
+    "url": "https://github.com/GrahamMcBain/amp-ai-sdk-provider/issues"
+  }
+}
