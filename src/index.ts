@@ -5,13 +5,14 @@ import {
 } from '@ai-sdk/provider-utils';
 import { ProviderV3 } from '@ai-sdk/provider';
 import { AmpChatLanguageModel, AmpChatSettings } from './amp-chat-language-model';
+import { AmpAgentLanguageModel, AmpAgentSettings } from './amp-agent-language-model';
 
 export interface AmpProvider extends ProviderV3 {
-  (modelId: string, settings?: AmpChatSettings): AmpChatLanguageModel;
+  (modelId: string, settings?: AmpChatSettings | AmpAgentSettings): AmpChatLanguageModel | AmpAgentLanguageModel;
   languageModel(
     modelId: string,
-    settings?: AmpChatSettings,
-  ): AmpChatLanguageModel;
+    settings?: AmpChatSettings | AmpAgentSettings,
+  ): AmpChatLanguageModel | AmpAgentLanguageModel;
 }
 
 export interface AmpProviderSettings {
@@ -36,39 +37,102 @@ export interface AmpProviderSettings {
    * Generate unique IDs for requests
    */
   generateId?: () => string;
+
+  // Coding agent-specific settings
+  /**
+   * Working directory for code execution context
+   * Allows the agent to understand project structure and file locations
+   */
+  cwd?: string;
+
+  /**
+   * Path to directory containing custom tools for the agent
+   * Tools should be executable files that the agent can invoke
+   */
+  toolbox?: string;
+
+  /**
+   * Allow the agent to use all available tools without restrictions
+   * WARNING: This can be dangerous as it gives the agent broad access
+   * @default false
+   */
+  dangerouslyAllowAll?: boolean;
+
+  /**
+   * Custom system prompt for coding tasks
+   * If not provided, will use appropriate defaults based on model
+   */
+  systemPrompt?: string;
 }
 
 export function createAmp(options: AmpProviderSettings = {}): AmpProvider {
-  const createChatModel = (
+  const shouldUseAgent = (
+    modelId: string, 
+    settings: AmpChatSettings | AmpAgentSettings = {}
+  ): boolean => {
+    // Use agent model if:
+    // 1. It's a coding model (amp-code, amp-reasoning)
+    // 2. Agent-specific settings are provided (cwd, toolbox, dangerouslyAllowAll)
+    // 3. Global agent settings are provided in options
+    const isAgentModel = modelId === 'amp-code' || modelId === 'amp-reasoning';
+    const hasAgentSettings = 'cwd' in settings || 'toolbox' in settings || 'dangerouslyAllowAll' in settings;
+    const hasGlobalAgentSettings = options.cwd || options.toolbox || options.dangerouslyAllowAll;
+    
+    return isAgentModel || hasAgentSettings || hasGlobalAgentSettings;
+  };
+
+  const createModel = (
     modelId: string,
-    settings: AmpChatSettings = {},
-  ) =>
-    new AmpChatLanguageModel(modelId, settings, {
-      provider: 'amp',
-      baseURL:
-        withoutTrailingSlash(options.baseURL) ?? 'https://api.ampcode.com',
-      headers: () => ({
-        'X-Amp-Api-Key': loadApiKey({
+    settings: AmpChatSettings | AmpAgentSettings = {},
+  ) => {
+    if (shouldUseAgent(modelId, settings)) {
+      // Merge global agent settings with per-call settings
+      const agentSettings: AmpAgentSettings = {
+        ...settings,
+        cwd: (settings as AmpAgentSettings).cwd || options.cwd,
+        toolbox: (settings as AmpAgentSettings).toolbox || options.toolbox,
+        dangerouslyAllowAll: (settings as AmpAgentSettings).dangerouslyAllowAll || options.dangerouslyAllowAll,
+        systemPrompt: (settings as AmpAgentSettings).systemPrompt || options.systemPrompt,
+      };
+
+      return new AmpAgentLanguageModel(modelId, agentSettings, {
+        provider: 'amp',
+        apiKey: loadApiKey({
           apiKey: options.apiKey,
           environmentVariableName: 'AMP_API_KEY',
           description: 'Amp Provider',
         }),
-        ...options.headers,
-      }),
-      generateId: options.generateId ?? generateId,
-    });
+        generateId: options.generateId ?? generateId,
+      });
+    } else {
+      // Use traditional chat model for simple text generation
+      return new AmpChatLanguageModel(modelId, settings as AmpChatSettings, {
+        provider: 'amp',
+        baseURL: withoutTrailingSlash(options.baseURL) ?? 'https://api.ampcode.com',
+        headers: () => ({
+          'X-Amp-Api-Key': loadApiKey({
+            apiKey: options.apiKey,
+            environmentVariableName: 'AMP_API_KEY',
+            description: 'Amp Provider',
+          }),
+          ...options.headers,
+        }),
+        generateId: options.generateId ?? generateId,
+      });
+    }
+  };
 
-  const provider = function (modelId: string, settings?: AmpChatSettings) {
+  const provider = function (modelId: string, settings?: AmpChatSettings | AmpAgentSettings) {
     if (new.target) {
       throw new Error(
         'The model factory function cannot be called with the new keyword.',
       );
     }
 
-    return createChatModel(modelId, settings);
+    return createModel(modelId, settings);
   };
 
-  provider.languageModel = createChatModel;
+  provider.languageModel = createModel;
 
   return provider as AmpProvider;
 }
@@ -80,10 +144,11 @@ export const amp = createAmp();
 export const ampChat = (settings?: AmpChatSettings) => 
   amp.languageModel('amp-chat', settings);
 
-export const ampCode = (settings?: AmpChatSettings) => 
+export const ampCode = (settings?: AmpAgentSettings) => 
   amp.languageModel('amp-code', settings);
 
-export const ampReasoning = (settings?: AmpChatSettings) => 
+export const ampReasoning = (settings?: AmpAgentSettings) => 
   amp.languageModel('amp-reasoning', settings);
 
 export type { AmpChatSettings } from './amp-chat-language-model';
+export type { AmpAgentSettings } from './amp-agent-language-model';

@@ -36,6 +36,9 @@
   ],
   "author": "Graham McBain <graham@ampcode.com>",
   "license": "MIT",
+  "dependencies": {
+    "@sourcegraph/amp-sdk": "0.1.0-3e67faf1b0e66cf0d3bf2985979efbcac0554a79"
+  },
   "peerDependencies": {
     "@ai-sdk/provider": "^1.0.0",
     "@ai-sdk/provider-utils": "^2.0.0"

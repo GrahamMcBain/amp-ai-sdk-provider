@@ -48,25 +48,23 @@ async function streamingExample() {
 }
 
 async function codeGenerationExample() {
-  console.log('\n=== Code Generation ===');
+  console.log('\n=== Code Generation (Agent Model) ===');
   
   const result = await generateText({
     model: ampCode({
       temperature: 0.1,
-      ampOptions: {
-        mode: 'code',
-        context: 'typescript',
-      },
+      cwd: process.cwd(),
+      systemPrompt: 'You are an expert TypeScript developer. Provide clean, well-documented code.',
     }),
     messages: [
       {
         role: 'user',
-        content: 'Create a TypeScript function that validates an email address using regex.',
+        content: 'Create a TypeScript function that validates an email address using regex. Include proper error handling and JSDoc comments.',
       },
     ],
   });
 
-  console.log('Generated code:');
+  console.log('Generated code (using Amp agent):');
   console.log(result.text);
 }
 
